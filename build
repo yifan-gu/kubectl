@@ -1,0 +1,20 @@
+#!/bin/bash
+
+IMAGE_REPO=${IMAGE_REPO:-quay.io/coreos/kubectl}
+VERSION=$1
+
+if [[ -z ${VERSION} ]]; then
+   echo "usage: build [version]"
+   exit 1
+fi
+
+curl -O https://storage.googleapis.com/kubernetes-release/release/${VERSION}/bin/linux/amd64/kubectl
+chmod +x kubectl
+
+docker build -t ${IMAGE_REPO}:${VERSION} .
+
+if [[ ${PUSH_IMAGE:-false} == "true" ]]; then
+    docker push ${IMAGE_REPO}:${VERSION}
+fi
+
+rm kubectl
